@@ -1,22 +1,18 @@
 # Setup Guide: Java and Maven
 
-This guide explains how to build and run JPetStore (jpetstore-6-sme) on your own computer.
+How to build and run JPetStore (jpetstore-6-sme) on your computer.
 
-## 1. Prerequisites
+## 1. What you need
 
-| Tool | Version | How to check |
-|---|---|---|
-| JDK | **21** | `java -version` |
-| Maven | Not required to install; the Maven Wrapper (`mvnw`) is included in the repo | `./mvnw -version` |
-| Git | Any recent version | `git --version` |
-| VS Code | Any recent version (optional, for editing) | |
-| Docker | Optional, only for Method B | `docker --version` |
+- **JDK 21** (check with `java -version`)
+- **Git**
+- **VS Code** (optional, for editing)
 
-> **Note:** The project is compiled to Java 8 bytecode (so Java 8 appears in `pom.xml`), but
-> you should run the build with **JDK 21**. If your computer has a different JDK (for example 25),
-> switch to JDK 21 first (see section 6).
+Maven doesn't need installing, because the project includes the Maven Wrapper (`mvnw`).
 
-## 2. Get the source code
+> The project is compiled to Java 8 bytecode, so Java 8 appears in `pom.xml`. You should still run it with JDK 21.
+
+## 2. Get the code
 
 ```bash
 git clone https://github.com/bob3528/jpetstore-6-sme.git
@@ -24,85 +20,53 @@ cd jpetstore-6-sme
 code .
 ```
 
-## 3. Method A: Maven and Tomcat (recommended)
+## 3. Check Java and Maven
 
-**Step 1: Verify Java and Maven**
-
-macOS / Linux:
 ```bash
 java -version
 ./mvnw -version
 ```
 
-Windows:
-```cmd
-java -version
-mvnw.cmd -version
-```
+It should show Java 21. On Windows, use `mvnw.cmd` instead of `./mvnw` in every command in this guide.
 
-Make sure it shows Java 21.
+## 4. Build
 
-**Step 2: Build the project**
-
-macOS / Linux:
 ```bash
 ./mvnw clean package
 ```
 
-Windows:
-```cmd
-mvnw.cmd clean package
-```
+Wait for `BUILD SUCCESS`. The first build takes a few minutes because it downloads dependencies. All 98 tests should pass.
 
-Wait until the terminal shows `BUILD SUCCESS` (the first build takes a few minutes while
-dependencies download). All 98 unit tests should pass.
+## 5. Run
 
-**Step 3: Run the application**
-
-macOS / Linux:
 ```bash
 ./mvnw cargo:run -P tomcat9
 ```
 
-Windows:
-```cmd
-mvnw.cmd cargo:run -P tomcat9
-```
+Wait for `Tomcat 9.0.120 started on port [8080]`, then open:
 
-Wait for the message `Tomcat 9.0.120 started on port [8080]`.
+**http://localhost:8080/jpetstore/**
 
-**Step 4: Open the application**
+## 6. Stop and restart
 
-Go to **http://localhost:8080/jpetstore/** in your browser.
+**To stop:** press `Ctrl + C` in the terminal.
 
-**Step 5: Stop the server**
-
-Press `Ctrl + C` in the terminal.
-
-## 4. Method B: Docker (alternative)
-
-Requires Docker Desktop to be running.
+**To start again:** run the same command from the project folder:
 
 ```bash
-docker compose up -d --build
+./mvnw cargo:run -P tomcat9
 ```
 
-Then open http://localhost:8080/jpetstore/. Stop it with `docker compose down`.
+You don't need to build again unless the code has changed. If you edited the code, run `./mvnw clean package` first, then the run command.
 
-> **Known issue:** If the build fails with `openjdk:25: not found`, change line 17 of the
-> `Dockerfile` to `FROM eclipse-temurin:21-jdk`.
+If it says port 8080 is already in use, the old server is still running. Find that terminal and press `Ctrl + C`, or close it.
 
-## 5. Quick check that it works
+## 7. Wrong JDK version?
 
-1. Open http://localhost:8080/jpetstore/.
-2. The JPetStore home page should appear.
-3. Click a pet category (for example Fish) to confirm the catalog loads.
-
-## 6. Switching JDK versions
+If `java -version` doesn't show 21:
 
 macOS:
 ```bash
-/usr/libexec/java_home -V
 export JAVA_HOME=$(/usr/libexec/java_home -v 21)
 java -version
 ```
@@ -114,15 +78,14 @@ set PATH=%JAVA_HOME%\bin;%PATH%
 java -version
 ```
 
-This only applies to the terminal window where you ran it.
+This only applies to the terminal window where you typed it.
 
-## 7. Harmless warnings during the build
+## 8. Warnings you can ignore
 
-These can be ignored, because the build still ends with `BUILD SUCCESS`:
-- `source value 8 is obsolete`: the project targets Java 8 bytecode.
-- `There were problems parsing ... .jsp` and `XmlParsingException`: a code-cleanup plugin
-  cannot read JSP files as XML.
+The build still ends with `BUILD SUCCESS` despite these:
+- `source value 8 is obsolete`
+- `There were problems parsing ... .jsp` and `XmlParsingException` (a code-cleanup plugin can't read JSP files)
 
-## 8. Other problems
+## 9. Other problems
 
-For installation errors and fixes, see `docs/troubleshooting.md`.
+See `docs/troubleshooting.md`.
